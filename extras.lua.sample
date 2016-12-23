@@ -1,24 +1,48 @@
+extra_log = hs.logger.new('extras','debug')
+extra_log.i('Initializing') -- will print "[mymodule] Initializing" to the console
+
 function pop_logs()
-	local script = [[
-		tell application "iterm2"
-			set logWindow to (create window with default profile command "tail -f /path/to/log/file.log")
-			tell current session of logWindow
-				split horizontally with default profile command "tail -f ~/path/to/other/file/error.log"
-			end tell
-		end tell
-	]]
 
-	hs.osascript.applescript(script)
-	local win = hs.window.focusedWindow()
-	local f = win:frame()
-	local screen = win:screen()
-	local max = screen:frame()
+    local script = [[
+        tell application "Terminal"
+            if not (exists window 1) then reopen
+            activate
+            do script ("exec -a logviewer tail -f ~/path/to/logs/application.log") in window 1
+        end tell
+    ]]
 
-	f.x = max.x + (max.w / 2)
-	f.y = max.y
-	f.w = max.w / 2
-	f.h = max.h
-	win:setFrame(f)
+    logwindow = hs.appfinder.windowFromWindowTitlePattern('logviewer')
+
+    if (logwindow == nil)
+    then
+        hs.osascript.applescript(script)
+
+        -- loop until we can get the title of the window we created above
+        while logwindow == nil do
+            logwindow = hs.appfinder.windowFromWindowTitlePattern('logviewer')
+            extra_log.i('boom')
+        end
+
+        local f = logwindow:frame()
+        local screen = logwindow:screen()
+        local max = screen:frame()
+
+        f.x = max.x + (max.w / 2)
+        f.y = max.y
+        f.w = max.w / 2
+        f.h = max.h
+        logwindow:setFrame(f)
+    end
+        
+    logwindow:unminimize()
+    logwindow:raise()
+
+    local app = hs.appfinder.appFromWindowTitlePattern('logviewer')
+    app:activate()
+    app:unhide()
+
+    extra_log.i('Completed pop_logs()')
+
 end
 
 hs.hotkey.bind(hyper, "L", pop_logs )

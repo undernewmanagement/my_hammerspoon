@@ -3,6 +3,8 @@ hypershift = {"ctrl", "alt", "cmd", "shift"}
 
 hs.window.animationDuration = 0.25
 
+
+require('variables')
 require('watcher')
 require('position')
 require('extras')

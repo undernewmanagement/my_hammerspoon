@@ -1,0 +1,9 @@
+
+-- this is the executable. 'lnav' is a separate executable
+logviewprogram = "lnav"
+
+-- this is how your shell will name the executable
+logviewername = "mylogview"
+
+-- this is the logfile you want to watch
+logfile = "~/path/to/logs/application.log"
